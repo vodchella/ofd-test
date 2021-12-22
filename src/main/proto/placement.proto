@@ -1,0 +1,20 @@
+syntax = "proto2";
+
+import "common.proto";
+
+package ofd.proto;
+
+enum MoneyPlacementEnum {
+  MONEY_PLACEMENT_DEPOSIT = 0;
+  MONEY_PLACEMENT_WITHDRAWAL = 1;
+}
+
+message MoneyPlacementRequest {
+  required DateTime datetime = 1;
+  required MoneyPlacementEnum operation = 2;
+  required Money sum = 3;
+  optional bool is_offline = 4;
+  optional uint32 fr_shift_number = 5;
+  optional uint64 printed_document_number = 6; // добавлено в версии 200
+  required Operator operator = 7; // добавлено в версии 202
+}

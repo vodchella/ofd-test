@@ -1,0 +1,23 @@
+syntax = "proto2";
+
+package ofd.proto;
+
+message KkmRegInfo {
+  optional string point_of_payment_number = 1;
+  optional string terminal_number = 2;
+  optional string fns_kkm_id = 3; // required с версии 125 при command == COMMAND_CLOSE_SHIFT || command == COMMAND_REPORT
+  optional string serial_number = 4; // required с версии 125 при command == COMMAND_CLOSE_SHIFT || command == COMMAND_REPORT
+  optional string kkm_id =5; // required с версии 125 при command == COMMAND_CLOSE_SHIFT || command == COMMAND_REPORT
+}
+
+message PosRegInfo {
+  required string title = 1; // required с версии 200
+  required string address = 2; // required с версии 200
+}
+
+message OrgRegInfo {
+  required string title = 1; // required с версии 200
+  required string address = 2; // required с версии 200
+  required string inn = 3; // required с версии 200
+  required string okved = 5; // required с версии 200
+}

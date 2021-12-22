@@ -1,0 +1,72 @@
+syntax = "proto2";
+
+import "ticket.proto";
+import "placement.proto";
+import "report.proto";
+import "shift.proto";
+import "nomenclature.proto";
+import "service.proto";
+import "auth.proto";
+
+package ofd.proto;
+
+enum CommandTypeEnum {
+  COMMAND_SYSTEM = 0;
+  COMMAND_TICKET = 1;
+  COMMAND_CLOSE_SHIFT = 2;
+  COMMAND_REPORT = 3;
+  COMMAND_NOMENCLATURE = 4;
+  COMMAND_INFO = 5;
+  COMMAND_MONEY_PLACEMENT = 6;
+  COMMAND_CANCEL_TICKET = 7;
+  COMMAND_AUTH = 8;
+  COMMAND_RESERVED = 127;
+}
+
+enum ResultTypeEnum {
+  RESULT_TYPE_OK = 0;
+  RESULT_TYPE_UNKNOWN_ID = 1;
+  RESULT_TYPE_INVALID_TOKEN = 2;
+  RESULT_TYPE_PROTOCOL_ERROR = 3;
+  RESULT_TYPE_UNKNOWN_COMMAND = 4;
+  RESULT_TYPE_UNSUPPORTED_COMMAND = 5;
+  RESULT_TYPE_INVALID_CONFIGURATION = 6;
+  RESULT_TYPE_SSL_IS_NOT_ALLOWED = 7; // не используется
+  RESULT_TYPE_INVALID_REQUEST_NUMBER = 8;
+  RESULT_TYPE_INVALID_RETRY_REQUEST = 9;
+  RESULT_TYPE_CANT_CANCEL_TICKET = 10;
+  RESULT_TYPE_OPEN_SHIFT_TIMEOUT_EXPIRED = 11;
+  RESULT_TYPE_INVALID_LOGIN_PASSWORD = 12; // не используется
+  RESULT_TYPE_INCORRECT_REQUEST_DATA = 13;
+  RESULT_TYPE_NOT_ENOUGH_CASH = 14;
+  RESULT_TYPE_BLOCKED = 15;
+  RESULT_TYPE_SAME_TAXPAYER_AND_CUSTOMER = 17; // добавлено в версии 202
+  RESULT_TYPE_SERVICE_TEMPORARILY_UNAVAILABLE = 254;
+  RESULT_TYPE_UNKNOWN_ERROR = 255;
+}
+
+message Result {
+  required uint32 result_code = 1; // число из диапазона ResultTypeEnum
+  optional string result_text = 2;
+}
+
+message Request {
+  required CommandTypeEnum command = 1;
+  optional TicketRequest ticket = 2; // required при command == COMMAND_TICKET
+  optional CloseShiftRequest close_shift = 3; // required при command == COMMAND_CLOSE_SHIFT
+  optional ReportRequest report = 4; // required при command == COMMAND_REPORT
+  optional NomenclatureRequest nomenclature = 5; // required при command == COMMAND_NOMENCLATURE
+  optional ServiceRequest service = 6; // required с версии 125 при command == COMMAND_CLOSE_SHIFT || command == COMMAND_REPORT
+  optional MoneyPlacementRequest money_placement = 7; // required при command == COMMAND_MONEY_PLACEMENT
+  optional AuthRequest auth = 8; // required при command == COMMAND_AUTH
+}
+
+message Response {
+  required CommandTypeEnum command = 1;
+  required Result result = 2;
+  optional TicketResponse ticket = 3; // required при command == COMMAND_TICKET
+  optional ReportResponse report = 4; // required при command == COMMAND_CLOSE_SHIFT || command == COMMAND_REPORT || command == COMMAND_INFO
+  optional NomenclatureResponse nomenclature = 5; // required при command == COMMAND_NOMENCLATURE
+  optional ServiceResponse service = 6; // required при command == COMMAND_INFO
+  optional AuthResponse auth = 7; // required при command == COMMAND_AUTH
+}

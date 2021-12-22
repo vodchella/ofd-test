@@ -1,0 +1,39 @@
+syntax = "proto2";
+
+import "common.proto";
+import "ticket.proto";
+
+package ofd.proto;
+
+enum DocumentTypeEnum {
+  INCOMING = 0;
+  OUTGOING = 1;
+}
+
+message DocumentRequest {
+  message Product {
+    required uint64 id = 1;
+    optional string name = 2;
+    optional uint32 quantity = 3;
+    optional string barcode = 4;
+    required string data_matrix = 5;
+  }
+  required DocumentTypeEnum type = 1;
+  required uint64 id = 2;
+  required DateTime date_time = 3;
+  optional TicketRequest.ExtensionOptions extension_options = 4;
+  repeated Product product_list = 5;
+}
+
+message DocumentResponse {
+  message Divergence {
+    required uint64 id = 1;
+    required bool is_negative = 2;
+    optional uint32 quantity = 3;
+    optional string barcode = 4;
+    required string data_matrix = 5;
+  }
+  required uint64 response_id = 1;
+  required uint64 request_id = 2;
+  repeated Divergence divergence_list = 3;
+}

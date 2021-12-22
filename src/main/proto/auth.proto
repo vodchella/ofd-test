@@ -1,0 +1,25 @@
+syntax = "proto2";
+
+package ofd.proto;
+
+enum UserRoleEnum {
+  USER_ROLE_PAYMASTER = 1;
+  USER_ROLE_CHIEF_PAYMASTER = 2;
+  USER_ROLE_ADMINISTRATOR = 3;
+}
+
+message AuthRequest {
+  required string login = 1;
+  required string password = 2;
+}
+
+message AuthResponse {
+  enum ResultTypeEnum {
+    RESULT_TYPE_OK = 0;
+    RESULT_TYPE_INVALID_LOGIN_PASSWORD = 1;
+  }
+  required ResultTypeEnum result = 1;
+  optional uint32 operator_code = 2;
+  optional string operator_name = 3;
+  repeated UserRoleEnum roles = 4;
+}

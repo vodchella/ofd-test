@@ -1,0 +1,21 @@
+syntax = "proto2";
+
+package ofd.proto;
+
+enum TicketAdTypeEnum {
+  TICKET_AD_OFD = 0;
+  TICKET_AD_ORG = 1;
+  TICKET_AD_POS = 2;
+  TICKET_AD_KKM = 3;
+  TICKET_AD_INFO = 4;
+}
+
+message TicketAdInfo {
+  required TicketAdTypeEnum type = 1;
+  required uint64 version = 2;
+}
+
+message TicketAd {
+  required TicketAdInfo info = 1;
+  required string text = 2;
+}

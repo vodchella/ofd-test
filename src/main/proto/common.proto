@@ -1,0 +1,31 @@
+syntax = "proto2";
+
+package ofd.proto;
+
+message Date {
+  required uint32 year = 1; // число от 2013 и больше
+  required uint32 month = 2; // число от 1 до 12
+  required uint32 day = 3; // число от 1 до 31
+}
+
+message Time {
+  required uint32 hour = 1; // число от 0 до 23
+  required uint32 minute = 2; // число от 0 до 59
+  optional uint32 second = 3; // число от 0 до 59
+}
+
+message DateTime {
+  required Date date = 1;
+  required Time time = 2;
+}
+
+message Money {
+  required uint64 bills = 1 [default = 0]; // число от 0 до 9223372036854775807
+  required uint32 coins = 2 [default = 0]; // число от 0 до 99
+}
+
+
+message Operator {
+  required uint32 code = 1;
+  optional string name = 2;
+}

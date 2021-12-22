@@ -1,0 +1,110 @@
+syntax = "proto2";
+
+import "common.proto";
+import "taxation.proto";
+import "ticket.proto";
+import "placement.proto";
+
+package ofd.proto;
+
+enum ReportTypeEnum {
+  REPORT_Z = 0;
+  REPORT_X = 1;
+}
+
+message ZXReport {
+  message Operation {
+    required OperationTypeEnum operation = 1;
+    required uint32 count = 2;
+    required Money sum = 3;
+  }
+
+  message Section {
+    required string section_code = 1;
+    repeated Operation operations = 2;
+  }
+
+  message Tax {
+    message TaxOperation {
+      required OperationTypeEnum operation = 1;
+      required Money turnover = 2;
+      required Money sum = 3;
+      required Money turnover_without_tax = 4; // добавлено в версии 200
+    }
+    required TaxTypeEnum type = 1;
+    required uint32 percent = 2;
+    repeated TaxOperation operations = 3;
+  }
+
+  message NonNullableSum {
+    required OperationTypeEnum operation = 1;
+    required Money sum = 2;
+  }
+
+  message TicketOperation {
+    message Payment {
+      required PaymentTypeEnum payment = 1;
+      required Money sum = 2;
+      required uint32 count = 3; // required с версии 200
+    }
+    required OperationTypeEnum operation = 1;
+    required uint32 tickets_total_count = 2;
+    required uint32 tickets_count = 3;
+    required Money tickets_sum = 4;
+    repeated Payment payments = 5;
+    required uint32 offline_count = 6; // required с версии 200
+    required Money discount_sum = 7; // required с версии 200
+    required Money markup_sum = 8; // required с версии 200
+    required Money change_sum = 9; // required с версии 200
+  }
+
+  message MoneyPlacement {
+    required MoneyPlacementEnum operation = 1;
+    required uint32 operations_total_count = 2;
+    required uint32 operations_count = 3;
+    required Money operations_sum = 4;
+    required uint32 offline_count = 5; // required с версии 200
+  }
+
+  message AnnulledTickets {
+    required uint32 annulled_tickets_total_count = 1;
+    required uint32 annulled_tickets_count = 2;
+    repeated Operation annulled_operations = 3;
+  }
+
+  message Revenue {
+    required Money sum = 1;
+    required bool is_negative = 2;
+  }
+
+  required DateTime date_time = 1;
+  required uint32 shift_number = 2;
+  repeated Section sections = 3;
+  repeated Operation operations = 4;
+  repeated Operation discounts = 5;
+  repeated Operation markups = 6;
+  repeated Operation total_result = 7;
+  repeated Tax taxes = 8;
+  repeated NonNullableSum  start_shift_non_nullable_sums = 9;
+  repeated TicketOperation ticket_operations = 10;
+  repeated MoneyPlacement money_placements = 11;
+  optional AnnulledTickets annulled_tickets = 12;
+  required Money cash_sum = 13;
+  required Revenue revenue = 14;
+  repeated NonNullableSum non_nullable_sums = 15;
+  required DateTime open_shift_time = 16; // required с версии 200
+  required DateTime close_shift_time = 17; // required с версии 200
+  required string checksum = 18; // required с версии 200
+}
+
+message ReportRequest {
+  required ReportTypeEnum report = 1;
+  required DateTime date_time = 2;
+  optional bool is_offline = 3;
+  required ZXReport zx_report = 4; // required с версии 200
+}
+
+message ReportResponse {
+  required ReportTypeEnum report = 1;
+  required ZXReport zx_report = 2;
+}

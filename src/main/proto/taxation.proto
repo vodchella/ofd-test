@@ -1,0 +1,24 @@
+syntax = "proto2";
+
+package ofd.proto;
+
+enum TaxTypeEnum {
+  VAT = 100;
+}
+
+enum TaxationTypeEnum {
+  STS = 100;
+  RTS = 101;
+  TRFF = 102;
+  TRBP = 103;
+}
+
+message BindedTaxation {
+  message BindedTax {
+    required TaxTypeEnum type  = 1;
+    required uint32 percent = 2;
+  }
+
+  required TaxationTypeEnum type  = 1;
+  repeated BindedTax taxes = 2;
+}
