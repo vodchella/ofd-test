@@ -10,7 +10,7 @@ public class OfdTest {
         OfdHeader header = new OfdHeader()
                 .setVersion((short) 202)
                 .setSize(OfdHeader.SIZE + body.length)
-                .setToken(868)
+                .setToken(647)
                 .setId(600)
                 .setReqNum((short) 1);
         byte[] headerBytes = header.toByteArray();
@@ -45,15 +45,35 @@ public class OfdTest {
         out.write(requestPacket);
         out.flush();
 
-        byte[] responseBytes = new byte[8192];
-        int bytesRead = in.read(responseBytes);
-        return createResponse(responseBytes, bytesRead);
+        int bytesRead;
+        int totalBytesRead = 0;
+        int responseSize = 8192;
+        final int bufferSize = 4096;
+        byte[] responseBytes = new byte[responseSize];
+        byte[] buffer = new byte[bufferSize];
+        while ((bytesRead = in.read(buffer, 0, bufferSize)) != -1) {
+            if (bytesRead < bufferSize) {
+                totalBytesRead = bytesRead;
+                responseBytes = buffer;
+                break;
+            }
+            if ((totalBytesRead + bytesRead) > responseSize) {
+                responseSize *= 2;
+                byte[] newResponseBuffer = new byte[responseSize];
+                System.arraycopy(responseBytes, 0, newResponseBuffer, 0, totalBytesRead);
+                responseBytes = newResponseBuffer;
+            }
+            System.arraycopy(buffer, 0, responseBytes, totalBytesRead, bytesRead);
+            totalBytesRead += bytesRead;
+        }
+
+        return createResponse(responseBytes, totalBytesRead);
     }
 
     public static void main(String[] args) throws IOException {
         Message.Response response = sendOfdRequest(
                 Message.Request.newBuilder()
-                        .setCommand(Message.CommandTypeEnum.COMMAND_SYSTEM)
+                        .setCommand(Message.CommandTypeEnum.COMMAND_INFO)
                         .build()
         );
         if (response != null) {
