@@ -36,6 +36,31 @@ public class OfdTest {
         return null;
     }
 
+    private static ReadStreamBytesResult readStreamBytes(DataInputStream in) throws IOException {
+        int bytesRead;
+        int totalBytesRead = 0;
+        int resultBufferSize = 4096;
+        final int bufferSize = 4096;
+        byte[] resultBytes = new byte[resultBufferSize];
+        byte[] buffer = new byte[bufferSize];
+        while ((bytesRead = in.read(buffer, 0, bufferSize)) != -1) {
+            if ((totalBytesRead + bytesRead) > resultBufferSize) {
+                resultBufferSize *= 2;
+                byte[] newResponseBuffer = new byte[resultBufferSize];
+                System.arraycopy(resultBytes, 0, newResponseBuffer, 0, totalBytesRead);
+                resultBytes = newResponseBuffer;
+            }
+            System.arraycopy(buffer, 0, resultBytes, totalBytesRead, bytesRead);
+            totalBytesRead += bytesRead;
+            if (bytesRead < bufferSize) {
+                break;
+            }
+        }
+        return new ReadStreamBytesResult()
+                .setLength(totalBytesRead)
+                .setBytes(resultBytes);
+    }
+
     private static Message.Response sendOfdRequest(Message.Request request) throws IOException {
         byte[] requestPacket = createRequestPacket(request.toByteArray());
 
@@ -45,29 +70,8 @@ public class OfdTest {
         out.write(requestPacket);
         out.flush();
 
-        int bytesRead;
-        int totalBytesRead = 0;
-        int responseSize = 8192;
-        final int bufferSize = 4096;
-        byte[] responseBytes = new byte[responseSize];
-        byte[] buffer = new byte[bufferSize];
-        while ((bytesRead = in.read(buffer, 0, bufferSize)) != -1) {
-            if (bytesRead < bufferSize) {
-                totalBytesRead = bytesRead;
-                responseBytes = buffer;
-                break;
-            }
-            if ((totalBytesRead + bytesRead) > responseSize) {
-                responseSize *= 2;
-                byte[] newResponseBuffer = new byte[responseSize];
-                System.arraycopy(responseBytes, 0, newResponseBuffer, 0, totalBytesRead);
-                responseBytes = newResponseBuffer;
-            }
-            System.arraycopy(buffer, 0, responseBytes, totalBytesRead, bytesRead);
-            totalBytesRead += bytesRead;
-        }
-
-        return createResponse(responseBytes, totalBytesRead);
+        ReadStreamBytesResult response = readStreamBytes(in);
+        return createResponse(response.getBytes(), response.getLength());
     }
 
     public static void main(String[] args) throws IOException {
